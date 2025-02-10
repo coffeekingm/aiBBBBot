@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 引入 Bootstrap 5.3 CSS 文件 -->
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet" >
+    <title>聊天对话框</title>
+</head>
+
+<body>
+    <div class="chat-container">
+        <!-- 修改历史记录侧边栏部分 -->
+        <div class="history-sidebar" id="historySidebar">
+            <div class="history-header">
+                <div class="header-left">
+                    <button class="close-history" onclick="toggleHistory()">&times;</button>
+                    <h3>聊天历史</h3>
+                </div>
+            </div>
+            <div class="history-content" id="historyContent">
+                <!-- 历史记录将在这里动态加载 -->
+            </div>
+        </div>
+
+        <div class="main-chat">
+            <!-- 添加历史记录按钮 -->
+            <div class="toolbar">
+                <button onclick="toggleHistory()" class="history-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    历史记录
+                </button>
+                <!-- 用户菜单移到这里 -->
+                <div class="user-menu">
+                    <div class="avatar" onclick="toggleDropdown()">
+                        <span class="avatar-text"></span>
+                    </div>
+                    <div class="dropdown-menu" id="userDropdown">
+                        <div class="user-info">
+                            <span id="username"></span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <button onclick="logout()" class="dropdown-item">登出</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 现有的聊天界面 -->
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div class="message-content">您好！有什么我可以帮忙的吗？</div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="messageInput" placeholder="输入消息...">
+                    <button class="btn" id="sendButton">发送</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入 Bootstrap 5.3 JavaScript 文件 -->
+    <script src="bootstrap.min.js"></script>
+    <script src="axios.min.js"></script>
+    <script src="main.js"></script>
+
+    <!-- 在 script 标签中添加登出函数 -->
+    <script>
+    async function logout() {
+        try {
+            const response = await fetch('/auth/logout', {
+                method: 'POST'
+            });
+            const data = await response.json();
+            if (data.success) {
+                window.location.href = '/login';
+            }
+        } catch (error) {
+            alert('登出失败');
+        }
+    }
+
+    // 获取用户名的首字母作为头像
+    function setAvatarText() {
+        const username = '<%= session.username %>';
+        document.querySelector('.avatar-text').textContent = username ? username[0].toUpperCase() : '?';
+        document.getElementById('username').textContent = username || '用户';
+    }
+
+    function toggleDropdown() {
+        const dropdown = document.getElementById('userDropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    // 在现有的 window.onclick 函数中添加历史记录面板的关闭逻辑
+    window.onclick = function(event) {
+        // 原有的下拉菜单关闭逻辑
+        if (!event.target.matches('.avatar') && !event.target.matches('.avatar-text')) {
+            const dropdowns = document.getElementsByClassName('dropdown-menu');
+            for (let dropdown of dropdowns) {
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        }
+
+        // 添加历史记录面板的关闭逻辑
+        const historySidebar = document.getElementById('historySidebar');
+        const historyBtn = event.target.closest('.history-btn');
+        const sidebar = event.target.closest('.history-sidebar');
+        
+        if (historySidebar.classList.contains('show') && !historyBtn && !sidebar) {
+            toggleHistory();
+        }
+    }
+
+    // 页面加载时设置头像
+    document.addEventListener('DOMContentLoaded', setAvatarText);
+
+    async function loadHistory() {
+        try {
+            const response = await fetch('/deepseek/history');
+            const data = await response.json();
+            if (data.success) {
+                const historyContent = document.getElementById('historyContent');
+                historyContent.innerHTML = data.history.map(item => `
+                    <div class="history-item">
+                        <div class="history-time">${new Date(item.created_at).toLocaleString()}</div>
+                        <div class="history-message">
+                            <div class="history-user">我: ${item.message}</div>
+                            <div class="history-bot">AI: ${item.response}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('加载历史记录失败:', error);
+        }
+    }
+
+    function toggleHistory() {
+        const sidebar = document.getElementById('historySidebar');
+        const body = document.body;
+        const isOpen = sidebar.classList.toggle('show');
+        
+        if (isOpen) {
+            loadHistory();
+            body.classList.add('history-open');
+        } else {
+            body.classList.remove('history-open');
+        }
+    }
+
+    // 添加触摸滑动关闭功能
+    let touchStartX = 0;
+    const historySidebar = document.getElementById('historySidebar');
+
+    historySidebar.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+    });
+
+    historySidebar.addEventListener('touchmove', (e) => {
+        if (!historySidebar.classList.contains('show')) return;
+        
+        const touchX = e.touches[0].clientX;
+        const diff = touchX - touchStartX;
+        
+        if (diff > 0) { // 只有向右滑动才处理
+            e.preventDefault();
+            historySidebar.style.right = `-${diff}px`;
+        }
+    });
+
+    historySidebar.addEventListener('touchend', (e) => {
+        if (!historySidebar.classList.contains('show')) return;
+        
+        const touchX = e.changedTouches[0].clientX;
+        const diff = touchX - touchStartX;
+        
+        historySidebar.style.right = '';
+        if (diff > 100) { // 如果滑动距离超过100px，关闭侧边栏
+            toggleHistory();
+        }
+    });
+
+    // 页面加载时添加历史记录加载
+    document.addEventListener('DOMContentLoaded', () => {
+        setAvatarText();
+        // loadHistory(); // 如果想一开始就加载历史记录，取消注释
+    });
+    </script>
+</body>
+
+</html>
