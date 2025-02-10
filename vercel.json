@@ -4,9 +4,33 @@
     {
       "src": "index.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/style.css",
+      "dest": "/public/style.css"
+    },
+    {
+      "src": "/main.js",
+      "dest": "/public/main.js"
+    },
+    {
+      "src": "/bootstrap.min.css",
+      "dest": "/public/bootstrap.min.css"
+    },
+    {
+      "src": "/bootstrap.min.js",
+      "dest": "/public/bootstrap.min.js"
+    },
+    {
+      "src": "/axios.min.js",
+      "dest": "/public/axios.min.js"
+    },
     {
       "src": "/(.*)",
       "dest": "index.js"

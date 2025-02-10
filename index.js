@@ -13,12 +13,13 @@ app.set('view engine', 'ejs');
 
 // 添加 session 中间件
 app.use(session({
-    secret: process.env.SESSION_SECRET, // 请更改为您自己的密钥
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: false, // 如果使用 HTTPS 则设为 true
-        maxAge: 1000 * 60 * 60 * 24 // 24小时
+        secure: process.env.NODE_ENV === 'production', // 生产环境启用 HTTPS
+        maxAge: 1000 * 60 * 60 * 24,
+        sameSite: 'lax'
     }
 }));
 
@@ -37,7 +38,13 @@ app.get('/register', (req, res) => {
 
 app.use(express.static('public'))
 
-
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ 
+        success: false, 
+        message: '服务器错误'
+    });
+});
 
 app.listen(3000,(req,res)=>{
     console.log("app runningat localhost 3000");
