@@ -2,6 +2,7 @@ import 'dotenv/config'
 import express from "express"
 import session from 'express-session'
 import path from 'path'
+import cors from 'cors'
 import { fileURLToPath } from 'url';
 import {client} from './config/database.js'
 import MongoStore from 'connect-mongo'
@@ -9,6 +10,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+app.set('trust proxy', 1); // 添加在 session 中间件之前
 
 // 添加 session 中间件
 app.use(session({
@@ -27,6 +30,11 @@ app.use(session({
         autoRemove: 'native' 
     }),
     name: 'aiBBBBot'
+}));
+
+app.use(cors({
+    origin: 'https://ai-bbb-bot.vercel.app',
+    credentials: true // 允许携带 Cookie
 }));
 
 app.use(express.urlencoded({ extended: true }));
