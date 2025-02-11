@@ -43,8 +43,16 @@ router.post('/login', async (req, res) => {
         // 设置session
         req.session.userId = user._id.toString();
         req.session.username = user.username;
-        
-        res.json({ success: true, message: '登录成功' });
+
+        // 确保会话数据有修改
+        // 手动保存会话
+        req.session.save((err) => {
+            if (err) {
+                console.error('Error saving session:', err);
+                return res.status(500).json({ success: false, message: '保存会话失败', error: err.message });
+            }
+            res.json({ success: true, message: '登录成功' });
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: '登录失败', error: error.message });
     }

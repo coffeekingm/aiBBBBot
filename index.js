@@ -9,13 +9,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-import dsr from './router/deepseek.js'
-import authRouter from './router/auth.js'
-
-app.set('views', path.join(__dirname, 'view'));
-app.set('view engine', 'ejs');
 
 // 添加 session 中间件
 app.use(session({
@@ -35,6 +28,14 @@ app.use(session({
     }),
     name: 'aiBBBBot'
 }));
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+import dsr from './router/deepseek.js'
+import authRouter from './router/auth.js'
+
+app.set('views', path.join(__dirname, 'view'));
+app.set('view engine', 'ejs');
 
 app.use('/deepseek',dsr);
 app.get('/',(req,res)=>res.redirect('/deepseek'));
