@@ -32,7 +32,8 @@ app.use(session({
         dbName: 'deepseek', 
         ttl: 14 * 24 * 60 * 60, 
         autoRemove: 'native' 
-    })
+    }),
+    name: 'aiBBBBot'
 }));
 
 app.use('/deepseek',dsr);
