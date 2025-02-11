@@ -3,6 +3,8 @@ import express from "express"
 import session from 'express-session'
 import path from 'path'
 import { fileURLToPath } from 'url';
+import {client} from './config/database.js'
+import MongoStore from 'connect-mongo'
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -24,7 +26,13 @@ app.use(session({
         secure: process.env.NODE_ENV === 'production', // 生产环境启用 HTTPS
         maxAge: 1000 * 60 * 60 * 24,
         sameSite: 'lax'
-    }
+    },
+    store: MongoStore.create({
+        client, 
+        dbName: 'deepseek', 
+        ttl: 14 * 24 * 60 * 60, 
+        autoRemove: 'native' 
+    })
 }));
 
 app.use('/deepseek',dsr);
