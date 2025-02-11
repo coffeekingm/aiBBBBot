@@ -52,10 +52,10 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             // 移除loading消息
-            chatMessages.removeChild(loadingMessage); 
+            chatMessages.removeChild(loadingMessage);
 
             // 模拟机器人回复
-            const botMessage = document.createElement('div');
+            const botMessage = document.createElement('div'); 
             botMessage.classList.add('message', 'bot');
             botMessage.innerHTML = `<div class="message-content">${bData}</div>`;
             chatMessages.appendChild(botMessage);
