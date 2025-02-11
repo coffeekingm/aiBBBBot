@@ -8,7 +8,7 @@ app.use(express.json());
 import dsr from './router/deepseek.js'
 import authRouter from './router/auth.js'
 
-app.set('views', './view');
+app.set('views', path.join(__dirname, 'view'));
 app.set('view engine', 'ejs');
 
 // 添加 session 中间件
