@@ -48,8 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                data:  {content:message},
-                // withCredentials: true // 允许携带凭证
+                data:  {content:message}
             });
 
             // 移除loading消息
