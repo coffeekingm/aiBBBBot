@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Content-Type': 'application/json'
                 },
                 data:  {content:message},
-                withCredentials: true // 允许携带凭证
+                // withCredentials: true // 允许携带凭证
             });
 
             // 移除loading消息
