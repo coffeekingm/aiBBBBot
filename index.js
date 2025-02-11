@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// app.set('trust proxy', 1); // 添加在 session 中间件之前
+app.set('trust proxy', 1); // 添加在 session 中间件之前
 
 // 添加 session 中间件
 app.use(session({
